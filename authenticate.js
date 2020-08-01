@@ -21,7 +21,7 @@ opts.secretOrKey = config.secretKey;
 
 exports.jwtPassport = passport.use(new JwtStrategy(opts, (jwt_payload, done) => {
     console.log("JWT payload: ", jwt_payload);
-    User.findOne({id: jwt_payload.sub}, (err, user) => {
+    User.findById(jwt_payload._id, (err, user) => {
         if (err) {
             return done(err, false);
         } else if (user) {
@@ -66,3 +66,28 @@ exports.verifyAdmin = (req, res, next) => {
 }
 
 exports.verifyUser = passport.authenticate('jwt', {session: false});
+
+/*exports.verifyUser = function (req, res, next) {
+    let token = req.body.token || req.query.token || req.headers['authorization'];
+    console.log(token);
+    const bearer = token.split(' ');
+    const bearerToken = bearer[1];
+    req.token = bearerToken;
+    if (req.token) {
+        jwt.verify(req.token, config.secretKey, function (err, decoded) {
+            if (err) {
+                const err = new Error('You are not authenticated!');
+                err.status = 403;
+                return next(err);
+            } else {
+                console.log("Logged in user: " + JSON.stringify(decoded));
+                req.decoded = decoded;
+                next();
+            }
+        });
+    } else {
+        const err = new Error('No token provided!');
+        err.status = 403;
+        return next(err);
+    }
+};*/
